@@ -1,0 +1,131 @@
+/**
+ * SCSS pour le portail client de gestion de parc informatique
+ */
+
+.parc_it_portal {
+    .equipment-card, .intervention-card, .contract-card {
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        
+        &:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .card-header {
+            font-weight: bold;
+        }
+        
+        .card-img-top {
+            height: 160px;
+            object-fit: contain;
+            padding: 1rem;
+        }
+    }
+    
+    .create-intervention-request {
+        margin: 1.5rem 0;
+    }
+    
+    .equipment-details, .intervention-details, .contract-details {
+        text-decoration: none;
+        color: inherit;
+        
+        &:hover {
+            text-decoration: none;
+        }
+    }
+    
+    /* États des équipements */
+    .equipment-state {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        display: inline-block;
+        font-size: 0.875rem;
+        
+        &.draft {
+            background-color: #e9ecef;
+            color: #212529;
+        }
+        &.in_stock {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        &.assigned {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        &.in_maintenance {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        &.end_of_life {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    }
+    
+    /* États des interventions */
+    .intervention-state {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        display: inline-block;
+        font-size: 0.875rem;
+        
+        &.draft {
+            background-color: #e9ecef;
+            color: #212529;
+        }
+        &.scheduled {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        &.in_progress {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        &.done {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        &.cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    }
+    
+    /* États des contrats */
+    .contract-state {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        display: inline-block;
+        font-size: 0.875rem;
+        
+        &.draft {
+            background-color: #e9ecef;
+            color: #212529;
+        }
+        &.pending {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        &.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        &.expiring_soon {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        &.expired {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        &.cancelled {
+            background-color: #e9ecef;
+            color: #212529;
+            text-decoration: line-through;
+        }
+    }
+} 

@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue form pour les types de contrats -->
+    <record id="view_parc_it_contract_type_form" model="ir.ui.view">
+        <field name="name">parc_it.contract.type.form</field>
+        <field name="model">parc_it.contract.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="contract_count"/>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue liste pour les types de contrats -->
+    <record id="view_parc_it_contract_type_list" model="ir.ui.view">
+        <field name="name">parc_it.contract.type.list</field>
+        <field name="model">parc_it.contract.type</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="contract_count"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue form pour les contrats -->
+    <record id="view_parc_it_contract_form" model="ir.ui.view">
+        <field name="name">parc_it.contract.form</field>
+        <field name="model">parc_it.contract</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_invoice" string="Générer facture" type="object" 
+                           class="oe_highlight" invisible="state not in ('active', 'expiring_soon')"/>
+                    <button name="action_create_subscription" string="Créer abonnement" type="object" 
+                           class="oe_highlight" invisible="state not in ('active', 'expiring_soon')"/>
+                    <button name="action_cancel" string="Annuler" type="object" invisible="state not in ('draft', 'pending', 'active', 'expiring_soon')"/>
+                    <button name="action_reactivate" string="Réactiver" type="object" invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,active,expiring_soon,expired"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_equipment" type="object" class="oe_stat_button" icon="fa-laptop">
+                            <field name="equipment_count" widget="statinfo" string="Équipements"/>
+                        </button>
+                        <button name="action_view_software" type="object" class="oe_stat_button" icon="fa-cube">
+                            <field name="software_count" widget="statinfo" string="Logiciels"/>
+                        </button>
+                        <button name="action_view_interventions" type="object" class="oe_stat_button" icon="fa-wrench">
+                            <field name="intervention_count" widget="statinfo" string="Interventions"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom du contrat"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="reference"/>
+                            <field name="type_id"/>
+                            <field name="client_id"/>
+                            <!-- Le champ subscription_id a été supprimé du modèle car sale_subscription a changé dans Odoo 18 -->
+                            <!-- <field name="subscription_id" readonly="1"/> -->
+                        </group>
+                        <group>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="next_invoice_date"/>
+                            <field name="active" invisible="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Facturation">
+                            <field name="billing_frequency"/>
+                        </group>
+                        <group string="Support">
+                            <field name="maintenance_included"/>
+                            <field name="support_hours"/>
+                            <field name="support_hours_used"/>
+                            <field name="support_hours_remaining"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Équipements couverts">
+                            <field name="equipment_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="type_id"/>
+                                    <field name="serial_number"/>
+                                    <field name="model"/>
+                                    <field name="manufacturer"/>
+                                    <field name="warranty_end_date"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Logiciels couverts">
+                            <field name="software_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="version"/>
+                                    <field name="publisher"/>
+                                    <field name="license_type"/>
+                                    <field name="expiration_date"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Interventions">
+                            <field name="intervention_ids">
+                                <list>
+                                    <field name="reference"/>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="type"/>
+                                    <field name="technician_id"/>
+                                    <field name="hours_spent"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Pièces jointes">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue liste pour les contrats -->
+    <record id="view_parc_it_contract_list" model="ir.ui.view">
+        <field name="name">parc_it.contract.list</field>
+        <field name="model">parc_it.contract</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="type_id"/>
+                <field name="client_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="next_invoice_date"/>
+                <field name="billing_frequency"/>
+                <field name="state" decoration-success="state == 'active'" 
+                      decoration-warning="state == 'expiring_soon'" 
+                      decoration-danger="state == 'expired'" 
+                      decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue recherche pour les contrats -->
+    <record id="view_parc_it_contract_search" model="ir.ui.view">
+        <field name="name">parc_it.contract.search</field>
+        <field name="model">parc_it.contract</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="client_id"/>
+                <field name="type_id"/>
+                <separator/>
+                <filter string="Brouillon" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="En attente" name="pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="Actif" name="active" domain="[('state', '=', 'active')]"/>
+                <filter string="Expiration proche" name="expiring_soon" domain="[('state', '=', 'expiring_soon')]"/>
+                <filter string="Expiré" name="expired" domain="[('state', '=', 'expired')]"/>
+                <filter string="Annulé" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter string="Facturation mensuelle" name="monthly" domain="[('billing_frequency', '=', 'monthly')]"/>
+                <filter string="Facturation trimestrielle" name="quarterly" domain="[('billing_frequency', '=', 'quarterly')]"/>
+                <filter string="Facturation annuelle" name="annual" domain="[('billing_frequency', '=', 'annual')]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Client" name="group_by_client" domain="[]" context="{'group_by':'client_id'}"/>
+                    <filter string="Type" name="group_by_type" domain="[]" context="{'group_by':'type_id'}"/>
+                    <filter string="État" name="group_by_state" domain="[]" context="{'group_by':'state'}"/>
+                    <filter string="Fréquence de facturation" name="group_by_billing_frequency" domain="[]" context="{'group_by':'billing_frequency'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vue calendrier pour les contrats -->
+    <record id="view_parc_it_contract_calendar" model="ir.ui.view">
+        <field name="name">parc_it.contract.calendar</field>
+        <field name="model">parc_it.contract</field>
+        <field name="arch" type="xml">
+            <calendar string="Contrats" date_start="start_date" date_stop="end_date" color="client_id" mode="month">
+                <field name="name"/>
+                <field name="client_id"/>
+                <field name="type_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Action pour les types de contrats -->
+    <record id="action_parc_it_contract_type" model="ir.actions.act_window">
+        <field name="name">Types de contrats</field>
+        <field name="res_model">parc_it.contract.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer un nouveau type de contrat
+            </p>
+            <p>
+                Définissez les différents types de contrats que vous proposez.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action pour les contrats -->
+    <record id="action_parc_it_contract" model="ir.actions.act_window">
+        <field name="name">Contrats</field>
+        <field name="res_model">parc_it.contract</field>
+        <field name="view_mode">kanban,list,form,calendar</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer un nouveau contrat
+            </p>
+            <p>
+                Définissez les conditions contractuelles avec vos clients.
+            </p>
+        </field>
+    </record>
+
+    <!-- Vue kanban pour les contrats -->
+    <record id="view_parc_it_contract_kanban" model="ir.ui.view">
+        <field name="name">parc_it.contract.kanban</field>
+        <field name="model">parc_it.contract</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="client_id"/>
+                <field name="type_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="next_invoice_date"/>
+                <field name="state"/>
+                <field name="equipment_count"/>
+                <field name="software_count"/>
+                <field name="intervention_count"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div class="o_kanban_record_subtitle">
+                                    <span><field name="client_id"/></span>
+                                </div>
+                                <ul>
+                                    <li t-if="record.type_id.raw_value">
+                                        <strong>Type:</strong> <field name="type_id"/>
+                                    </li>
+                                    <li t-if="record.next_invoice_date.raw_value">
+                                        <strong>Prochaine facture:</strong> <field name="next_invoice_date"/>
+                                    </li>
+                                    <li t-if="record.end_date.raw_value">
+                                        <strong>Fin:</strong> <field name="end_date"/>
+                                    </li>
+                                </ul>
+                                <div>
+                                    <span class="badge badge-pill badge-primary mr-2">
+                                        <i class="fa fa-laptop" title="Équipements"/> <field name="equipment_count"/>
+                                    </span>
+                                    <span class="badge badge-pill badge-info mr-2">
+                                        <i class="fa fa-cube" title="Logiciels"/> <field name="software_count"/>
+                                    </span>
+                                    <span class="badge badge-pill badge-secondary">
+                                        <i class="fa fa-wrench" title="Interventions"/> <field name="intervention_count"/>
+                                    </span>
+                                </div>
+                                <div class="o_kanban_record_bottom mt-2">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="state" widget="label_selection" 
+                                               options="{'classes': {'draft': 'default', 'pending': 'info', 
+                                                                     'active': 'success', 'expiring_soon': 'warning', 
+                                                                     'expired': 'danger', 'cancelled': 'muted'}}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+</odoo> 

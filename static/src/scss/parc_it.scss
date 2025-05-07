@@ -1,0 +1,103 @@
+/**
+ * SCSS pour le module de gestion de parc informatique
+ */
+
+.o_parc_it_equipment_kanban {
+    .o_kanban_record {
+        .o_equipment_image {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+        }
+        .o_equipment_details {
+            margin-left: 70px;
+        }
+    }
+}
+
+.o_parc_it_intervention_kanban {
+    .badge-priority {
+        &.priority-0 {
+            background-color: #e9ecef;
+        }
+        &.priority-1 {
+            background-color: #28a745;
+        }
+        &.priority-2 {
+            background-color: #ffc107;
+        }
+        &.priority-3 {
+            background-color: #dc3545;
+        }
+    }
+}
+
+.o_parc_it_contract_kanban {
+    .o_kanban_record {
+        .o_contract_badge {
+            display: inline-block;
+            margin-right: 4px;
+        }
+    }
+}
+
+/* Style pour les états des équipements */
+.o_parc_it_equipment_state {
+    &.draft {
+        color: #6c757d;
+    }
+    &.in_stock {
+        color: #17a2b8;
+    }
+    &.assigned {
+        color: #28a745;
+    }
+    &.in_maintenance {
+        color: #ffc107;
+    }
+    &.end_of_life {
+        color: #dc3545;
+    }
+}
+
+/* Style pour les états des contrats */
+.o_parc_it_contract_state {
+    &.draft {
+        color: #6c757d;
+    }
+    &.pending {
+        color: #17a2b8;
+    }
+    &.active {
+        color: #28a745;
+    }
+    &.expiring_soon {
+        color: #ffc107;
+    }
+    &.expired {
+        color: #dc3545;
+    }
+    &.cancelled {
+        color: #6c757d;
+        text-decoration: line-through;
+    }
+}
+
+/* Style pour les tableaux de bord */
+.o_parc_it_dashboard {
+    .o_dashboard_card {
+        height: 150px;
+        margin-bottom: 16px;
+        border-radius: 4px;
+        
+        .o_card_title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .o_card_value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+    }
+} 

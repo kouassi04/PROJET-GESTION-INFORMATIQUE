@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Données par défaut pour le module parc_IT -->
+    <data noupdate="1">
+        <!-- Ici les données par défaut si nécessaire -->
+    </data>
+</odoo> 

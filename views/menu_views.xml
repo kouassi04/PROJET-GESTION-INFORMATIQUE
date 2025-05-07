@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal -->
+    <menuitem id="menu_parc_it_root" 
+              name="Parc IT" 
+              web_icon="parc_IT,static/description/icon.png" 
+              sequence="10"/>
+    
+    <!-- Sous-menus de premier niveau -->
+    <menuitem id="menu_parc_it_equipment" 
+              name="Équipements" 
+              parent="menu_parc_it_root" 
+              sequence="10"/>
+    
+    <menuitem id="menu_parc_it_software" 
+              name="Logiciels" 
+              parent="menu_parc_it_root" 
+              sequence="20"/>
+    
+    <menuitem id="menu_parc_it_interventions" 
+              name="Interventions" 
+              parent="menu_parc_it_root" 
+              sequence="30"/>
+    
+    <menuitem id="menu_parc_it_contracts" 
+              name="Contrats" 
+              parent="menu_parc_it_root" 
+              sequence="40"/>
+    
+    <menuitem id="menu_parc_it_clients" 
+              name="Clients" 
+              parent="menu_parc_it_root" 
+              sequence="50"/>
+    
+    <!-- Menu des techniciens -->
+    <menuitem id="menu_parc_it_technicians" 
+              name="Techniciens" 
+              parent="menu_parc_it_root" 
+              action="action_parc_it_technician"
+              sequence="55"/>
+    
+    <menuitem id="menu_parc_it_reporting" 
+              name="Rapports" 
+              parent="menu_parc_it_root" 
+              sequence="60"/>
+    
+    <menuitem id="menu_parc_it_configuration" 
+              name="Configuration" 
+              parent="menu_parc_it_root" 
+              sequence="100" 
+              groups="parc_IT.group_parc_it_manager"/>
+    
+    <!-- Sous-menus Équipements -->
+    <menuitem id="menu_parc_it_equipment_all" 
+              name="Tous les équipements" 
+              parent="menu_parc_it_equipment" 
+              action="action_parc_it_equipment" 
+              sequence="10"/>
+    
+    <menuitem id="menu_parc_it_equipment_types" 
+              name="Types d'équipements" 
+              parent="menu_parc_it_configuration" 
+              action="action_parc_it_equipment_type" 
+              sequence="10"/>
+    
+    <!-- Sous-menus Logiciels -->
+    <menuitem id="menu_parc_it_software_all" 
+              name="Tous les logiciels" 
+              parent="menu_parc_it_software" 
+              action="action_parc_it_software" 
+              sequence="10"/>
+    
+    <menuitem id="menu_parc_it_software_categories" 
+              name="Catégories de logiciels" 
+              parent="menu_parc_it_configuration" 
+              action="action_parc_it_software_category" 
+              sequence="20"/>
+    
+    <!-- Sous-menus Interventions -->
+    <menuitem id="menu_parc_it_intervention_all" 
+              name="Toutes les interventions" 
+              parent="menu_parc_it_interventions" 
+              action="action_parc_it_intervention" 
+              sequence="10"/>
+    
+    <menuitem id="menu_parc_it_intervention_types" 
+              name="Types d'interventions" 
+              parent="menu_parc_it_configuration" 
+              action="action_parc_it_intervention_type" 
+              sequence="30"/>
+    
+    <menuitem id="menu_parc_it_technician_skills" 
+              name="Compétences techniques" 
+              parent="menu_parc_it_configuration" 
+              action="action_parc_it_technician_skill" 
+              sequence="40"/>
+    
+    <!-- Sous-menus Contrats -->
+    <menuitem id="menu_parc_it_contract_all" 
+              name="Tous les contrats" 
+              parent="menu_parc_it_contracts" 
+              action="action_parc_it_contract" 
+              sequence="10"/>
+    
+    <menuitem id="menu_parc_it_contract_types" 
+              name="Types de contrats" 
+              parent="menu_parc_it_configuration" 
+              action="action_parc_it_contract_type" 
+              sequence="50"/>
+</odoo> 

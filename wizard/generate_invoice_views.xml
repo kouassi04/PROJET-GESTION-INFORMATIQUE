@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View pour l'assistant de génération de factures -->
+    <record id="view_parc_it_generate_invoice_wizard_form" model="ir.ui.view">
+        <field name="name">parc_it.generate.invoice.wizard.form</field>
+        <field name="model">parc_it.generate.invoice.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Générer les factures">
+                <sheet>
+                    <group>
+                        <field name="contract_ids" widget="many2many_tags"/>
+                        <field name="date_invoice"/>
+                    </group>
+                    <notebook>
+                        <page string="Lignes de facturation">
+                            <field name="invoice_line_ids">
+                                <list editable="bottom">
+                                    <field name="contract_id"/>
+                                    <field name="name"/>
+                                    <field name="product_id" domain="[('type', '=', 'service')]"/>
+                                    <field name="quantity"/>
+                                    <field name="price_unit"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_generate_invoices" string="Générer factures" type="object" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action pour l'assistant de génération de factures -->
+    <record id="action_parc_it_generate_invoice_wizard" model="ir.actions.act_window">
+        <field name="name">Générer factures</field>
+        <field name="res_model">parc_it.generate.invoice.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_parc_it_contract"/>
+        <field name="binding_view_types">form,list</field>
+    </record>
+    
+    <!-- Menu pour l'assistant de génération de factures -->
+    <menuitem id="menu_parc_it_generate_invoice" 
+              name="Générer les factures" 
+              parent="menu_parc_it_contracts" 
+              action="action_parc_it_generate_invoice_wizard" 
+              sequence="20" 
+              groups="parc_IT.group_parc_it_manager"/>
+</odoo> 

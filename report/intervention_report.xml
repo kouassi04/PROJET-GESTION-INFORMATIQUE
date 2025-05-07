@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_parc_it_intervention_report" model="ir.actions.report">
+        <field name="name">Rapport d'intervention</field>
+        <field name="model">parc_it.intervention</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">parc_IT.intervention_report_template</field>
+        <field name="report_file">parc_IT.intervention_report_template</field>
+        <field name="binding_model_id" ref="model_parc_it_intervention"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="intervention_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="intervention">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Rapport d'intervention: <span t-field="intervention.reference"/></h2>
+                        <div class="row mt32 mb32">
+                            <div class="col-6">
+                                <strong>Client:</strong> <span t-field="intervention.client_id.name"/><br/>
+                                <strong>Équipement:</strong> <span t-field="intervention.equipment_id.name"/><br/>
+                                <strong>Type d'intervention:</strong> <span t-field="intervention.type"/><br/>
+                                <strong>Contrat:</strong> <span t-field="intervention.contract_id.name"/><br/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Date:</strong> <span t-field="intervention.date"/><br/>
+                                <strong>Date planifiée:</strong> <span t-field="intervention.scheduled_date"/><br/>
+                                <strong>Date de fin:</strong> <span t-field="intervention.completion_date"/><br/>
+                                <strong>Technicien:</strong> <span t-field="intervention.technician_id.name"/><br/>
+                                <strong>État:</strong> <span t-field="intervention.state"/><br/>
+                            </div>
+                        </div>
+                        
+                        <h3>Description</h3>
+                        <p t-field="intervention.description"/>
+                        
+                        <t t-if="intervention.state == 'done'">
+                            <h3>Résolution</h3>
+                            <p t-field="intervention.resolution"/>
+                        </t>
+                        
+                        <div class="row mt32">
+                            <div class="col-6">
+                                <h4>Durée</h4>
+                                <p>
+                                    <strong>Heures planifiées:</strong> <span t-field="intervention.hours_planned"/><br/>
+                                    <strong>Heures passées:</strong> <span t-field="intervention.hours_spent"/>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt32">
+                            <div class="col-12">
+                                <h4>Signature du client</h4>
+                                <div class="mt16" style="border-top: 1px solid black; height: 100px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo> 
