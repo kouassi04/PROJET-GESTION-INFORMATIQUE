@@ -1,7 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
-
 class InterventionType(models.Model):
     _name = 'parc_it.intervention.type'
     _description = 'Type d\'intervention'
@@ -11,13 +10,15 @@ class InterventionType(models.Model):
     description = fields.Text(string='Description')
     intervention_count = fields.Integer(compute='_compute_intervention_count', string='Nombre d\'interventions')
     
-    @api.depends()
+    @api.depends('name')  # Dépendance minimale
     def _compute_intervention_count(self):
+        intervention_data = self.env['parc_it.intervention'].read_group(
+            [('type_id', 'in', self.ids)],
+            ['type_id'], ['type_id']
+        )
+        mapped_data = {data['type_id'][0]: data['type_id_count'] for data in intervention_data}
         for record in self:
-            record.intervention_count = self.env['parc_it.intervention'].search_count([
-                ('type_id', '=', record.id)
-            ])
-
+            record.intervention_count = mapped_data.get(record.id, 0)
 
 class Intervention(models.Model):
     _name = 'parc_it.intervention'
@@ -104,8 +105,17 @@ class Intervention(models.Model):
     
     def action_create_ticket(self):
         """Créer un ticket d'assistance à partir de l'intervention"""
-        # TODO: Implémenter la création d'un ticket d'assistance
-        pass
+        for intervention in self:
+            ticket = self.env['helpdesk.ticket'].create({
+                'name': _('Ticket pour intervention: %s') % intervention.name,
+                'description': intervention.description or _('Aucune description'),
+                'partner_id': intervention.client_id.id,
+                'team_id': self.env['helpdesk.team'].search([], limit=1).id,  # Prend la première équipe par défaut
+                'user_id': intervention.technician_id.user_id.id if intervention.technician_id else False,
+                'priority': intervention.priority,
+            })
+            intervention.helpdesk_ticket_id = ticket
+            intervention.message_post(body=_("Ticket d'assistance créé: %s") % ticket.name)
     
     @api.model_create_multi
     def create(self, vals_list):
@@ -114,4 +124,4 @@ class Intervention(models.Model):
             # Générer une référence automatique si non fournie
             if not vals.get('reference'):
                 vals['reference'] = self.env['ir.sequence'].next_by_code('parc_it.intervention') or _('Nouvelle intervention')
-        return super(Intervention, self).create(vals_list) 
+        return super(Intervention, self).create(vals_list)

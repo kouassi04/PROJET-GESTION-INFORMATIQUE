@@ -1,6 +1,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
-
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 class ContractType(models.Model):
     _name = 'parc_it.contract.type'
@@ -11,13 +12,15 @@ class ContractType(models.Model):
     description = fields.Text(string='Description')
     contract_count = fields.Integer(compute='_compute_contract_count', string='Nombre de contrats')
     
-    @api.depends()
+    @api.depends('name')
     def _compute_contract_count(self):
+        contract_data = self.env['parc_it.contract'].read_group(
+            [('type_id', 'in', self.ids)],
+            ['type_id'], ['type_id']
+        )
+        mapped_data = {data['type_id'][0]: data['type_id_count'] for data in contract_data}
         for record in self:
-            record.contract_count = self.env['parc_it.contract'].search_count([
-                ('type_id', '=', record.id)
-            ])
-
+            record.contract_count = mapped_data.get(record.id, 0)
 
 class Contract(models.Model):
     _name = 'parc_it.contract'
@@ -27,12 +30,9 @@ class Contract(models.Model):
 
     name = fields.Char(string='Nom', required=True, tracking=True)
     reference = fields.Char(string='Référence', tracking=True)
-    type_id = fields.Many2one('parc_it.contract.type', string='Type de contrat', required=True, tracking=True)
+    type_id = fields.Many2one('parc_it.contract.type', string='Type de contrat', required=True, tracking=True,
+                             default=lambda self: self.env['parc_it.contract.type'].search([], limit=1))
     client_id = fields.Many2one('res.partner', string='Client', domain=[('is_company', '=', True)], required=True, tracking=True)
-    
-    # Le module sale_subscription a changé dans Odoo 18, cette référence n'est plus valide
-    # subscription_id = fields.Many2one('sale.subscription', string='Abonnement associé', tracking=True,
-    #                                  help="Abonnement pour la facturation récurrente")
     
     start_date = fields.Date(string='Date de début', required=True, tracking=True)
     end_date = fields.Date(string='Date de fin', tracking=True)
@@ -87,7 +87,7 @@ class Contract(models.Model):
                 
             if record.end_date < today:
                 record.state = 'expired'
-            elif record.end_date < today + fields.Duration(days=30):
+            elif record.end_date < today + timedelta(days=30):
                 record.state = 'expiring_soon'
             elif record.start_date <= today:
                 record.state = 'active'
@@ -113,24 +113,24 @@ class Contract(models.Model):
     
     @api.depends('start_date', 'billing_frequency')
     def _compute_next_invoice_date(self):
+        today = fields.Date.today()
         for record in self:
             if not record.start_date:
                 record.next_invoice_date = False
                 continue
                 
-            today = fields.Date.today()
             next_date = record.start_date
             
             # Trouver la prochaine date de facturation basée sur la fréquence
             while next_date <= today:
                 if record.billing_frequency == 'monthly':
-                    next_date = next_date + fields.Duration(months=1)
+                    next_date = next_date + relativedelta(months=1)
                 elif record.billing_frequency == 'quarterly':
-                    next_date = next_date + fields.Duration(months=3)
+                    next_date = next_date + relativedelta(months=3)
                 elif record.billing_frequency == 'semi_annual':
-                    next_date = next_date + fields.Duration(months=6)
+                    next_date = next_date + relativedelta(months=6)
                 elif record.billing_frequency == 'annual':
-                    next_date = next_date + fields.Duration(years=1)
+                    next_date = next_date + relativedelta(years=1)
             
             record.next_invoice_date = next_date
     
@@ -185,13 +185,17 @@ class Contract(models.Model):
     
     def action_reactivate(self):
         self.write({'state': 'draft'})
-        # Recalculer l'état après réactivation
         self._compute_state()
     
     def action_create_subscription(self):
-        # TODO: Implémenter la création d'un abonnement pour la facturation récurrente
         pass
     
     def action_generate_invoice(self):
-        # TODO: Implémenter la génération manuelle d'une facture
-        pass 
+        return {
+            'name': _('Générer une facture'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'parc_it.generate.invoice.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_contract_ids': [(6, 0, [self.id])]},
+        }

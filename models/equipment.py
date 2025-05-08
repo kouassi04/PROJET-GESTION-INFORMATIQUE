@@ -1,7 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
-
 class EquipmentType(models.Model):
     _name = 'parc_it.equipment.type'
     _description = 'Type d\'équipement'
@@ -12,12 +11,15 @@ class EquipmentType(models.Model):
     description = fields.Text(string='Description')
     equipment_count = fields.Integer(compute='_compute_equipment_count', string='Nombre d\'équipements')
     
-    @api.depends()
+    @api.depends('name')  # Dépendance minimale, peut être ajustée si nécessaire
     def _compute_equipment_count(self):
+        equipment_data = self.env['parc_it.equipment'].read_group(
+            [('type_id', 'in', self.ids)],
+            ['type_id'], ['type_id']
+        )
+        mapped_data = {data['type_id'][0]: data['type_id_count'] for data in equipment_data}
         for record in self:
-            record.equipment_count = self.env['parc_it.equipment'].search_count([
-                ('type_id', '=', record.id)
-            ])
+            record.equipment_count = mapped_data.get(record.id, 0)
 
 
 class Equipment(models.Model):
@@ -106,4 +108,4 @@ class Equipment(models.Model):
         equipments = super(Equipment, self).create(vals_list)
         for equipment in equipments:
             equipment.message_post(body=_("Équipement créé"))
-        return equipments 
+        return equipments

@@ -1,7 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
-
 class GenerateInvoiceWizard(models.TransientModel):
     _name = 'parc_it.generate.invoice.wizard'
     _description = 'Assistant de génération de facture'
@@ -15,13 +14,17 @@ class GenerateInvoiceWizard(models.TransientModel):
     def _onchange_contract_ids(self):
         """Générer les lignes de facturation basées sur les contrats sélectionnés"""
         lines = []
+        # Tenter de trouver un produit de service par défaut
+        default_product = self.env['product.product'].search([('type', '=', 'service')], limit=1)
+        
         for contract in self.contract_ids:
             # Créer une ligne pour le contrat de base
             line = {
                 'contract_id': contract.id,
                 'name': _('Maintenance et support informatique - %s') % contract.name,
                 'quantity': 1.0,
-                'price_unit': 0.0,  # Sera calculé ou rempli manuellement
+                'price_unit': 100.0,  # Prix par défaut, à ajuster
+                'product_id': default_product.id if default_product else False,
             }
             lines.append((0, 0, line))
             
@@ -31,7 +34,8 @@ class GenerateInvoiceWizard(models.TransientModel):
                     'contract_id': contract.id,
                     'name': _('Gestion de parc matériel - %s équipements') % len(contract.equipment_ids),
                     'quantity': len(contract.equipment_ids),
-                    'price_unit': 0.0,  # Sera calculé ou rempli manuellement
+                    'price_unit': 50.0,  # Prix par défaut, à ajuster
+                    'product_id': default_product.id if default_product else False,
                 }
                 lines.append((0, 0, line))
                 
@@ -41,7 +45,8 @@ class GenerateInvoiceWizard(models.TransientModel):
                     'contract_id': contract.id,
                     'name': _('Gestion des licences - %s logiciels') % len(contract.software_ids),
                     'quantity': len(contract.software_ids),
-                    'price_unit': 0.0,  # Sera calculé ou rempli manuellement
+                    'price_unit': 30.0,  # Prix par défaut, à ajuster
+                    'product_id': default_product.id if default_product else False,
                 }
                 lines.append((0, 0, line))
                 
@@ -56,6 +61,13 @@ class GenerateInvoiceWizard(models.TransientModel):
             if not contract_lines:
                 continue
                 
+            # Vérifier que toutes les lignes ont un produit défini
+            for line in contract_lines:
+                if not line.product_id:
+                    raise ValidationError(_('Veuillez sélectionner un produit pour toutes les lignes de facturation.'))
+                if line.price_unit <= 0:
+                    raise ValidationError(_('Le prix unitaire doit être supérieur à 0 pour toutes les lignes.'))
+            
             # Créer la facture
             invoice_vals = {
                 'partner_id': contract.client_id.id,
@@ -68,9 +80,6 @@ class GenerateInvoiceWizard(models.TransientModel):
             
             # Ajouter les lignes de facturation
             for line in contract_lines:
-                if line.price_unit <= 0:
-                    continue
-                    
                 product = line.product_id
                 account = product.property_account_income_id or product.categ_id.property_account_income_categ_id
                 
@@ -97,12 +106,13 @@ class GenerateInvoiceWizard(models.TransientModel):
                 'name': _('Factures générées'),
                 'type': 'ir.actions.act_window',
                 'res_model': 'account.move',
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
+                'views': [(False, 'list'), (False, 'form')],  # Utiliser les vues list et form
                 'domain': [('id', 'in', invoices.ids)],
             }
             return action
         else:
-            raise ValidationError(_("Aucune facture n'a pu être générée. Vérifiez que les prix unitaires sont correctement définis."))
+            raise ValidationError(_("Aucune facture n'a pu être générée. Vérifiez les données."))
 
 
 class GenerateInvoiceLineWizard(models.TransientModel):
@@ -115,4 +125,4 @@ class GenerateInvoiceLineWizard(models.TransientModel):
     product_id = fields.Many2one('product.product', string='Produit', 
                              domain="[('type', '=', 'service')]", required=True)
     quantity = fields.Float(string='Quantité', default=1.0)
-    price_unit = fields.Float(string='Prix unitaire') 
+    price_unit = fields.Float(string='Prix unitaire', required=True)
